@@ -1,62 +1,106 @@
 #!/bin/bash
 
-## ********************* For display menus ********************
-## For display the main menu
-displayMainMenu(){
-}
-
 ## For display operations on the database
 displayDatabaseMenu(){
+	echo "test"
 }
 
 
 ## ********************** For manipulating databases **********************
 ## create database
 createDatabase(){
+	
+	if [[ ! -d "databases" ]]; then
+		mkdir "databases"
+	fi
+	read -p "Enter the new database name -> " dname
+	if [[ -z $dname ]]; then
+		echo "Database name cannot be empty" 
+		return 
+	fi
+	if [[ -d "databases/$dname" ]]; then
+		echo "Databe $dname is exists"
+	else
+		mkdir "databases/$dname"
+		echo "Database created"
+	fi
 }
 
 ## list databases
 listDatabases(){
+	 ls -1 databases/ | sed 's|^databases/||'
 }
 
 ## drop database
 dropDatabase(){
+	 echo "test"
 }
 
 ## connect to datbase
-connectToDatabase(){
+connectToDatabase(){ echo "test"
 }
 
 
 ## ********************** For manupulating tables ************************
 ## create table
-createTable(){
+createTable(){ echo "test"
 }
 
 ## list tables
-listTables(){
+listTables(){ echo "test"
 }
 
 ## drop table
-dropTable(){
+dropTable(){ echo "test"
 }
 
 ## insert into table
-insertIntoTable(){
+insertIntoTable(){ echo "test"
 }
 
 ## select from table
-selectFromTable(){
+selectFromTable(){ echo "test"
 }
 
 ## delete from table
-deleteFromTable(){
+deleteFromTable(){ echo "test"
 }
 
 ## update table
-updateTable(){
+updateTable(){ echo "test"
 }
 
 ## disconnect form database
-disconnect(){
+disconnect(){ echo "test"
 }
+## ********************* For display menus ********************
+## For display the main menu
+displayMainMenu(){
+        local mainmenu=("Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit" )
+        select choice in "${mainmenu[@]}"; do
+                case $REPLY in
+                        1)
+                                echo "Create Database Selected"
+                                createDatabase
+                                ;;
+                        2)
+                                echo "List Database Selected"
+				listDatabases
+                                ;;
+                        3)
+                                echo "Connect to Database Selected"
+                                ;;
+                        4)
+                                echo "Drop Database Selected"
+                                ;;
+                        5)
+                                echo "Exit The Program"
+                                exit 0
+                                ;;
+                        *)
+                                echo "Invailid choice! Please select number between 1 and ${#mainmenu}"
+                                ;;
+                esac
+        done
+}
+displayMainMenu
