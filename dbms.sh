@@ -3,6 +3,7 @@
 
 ## Global Variables
 CURRDATABASE=""
+PATHTODB="databases"
 
 ## ********************* For display menus ********************
 ## For display the main menu
@@ -72,7 +73,7 @@ displayDatabaseMenu(){
 				updateTable
 				;;
 			8)
-				break
+				exit 0
 				;;
 			*)
 				echo "Invalid choice try again!"
@@ -86,18 +87,18 @@ displayDatabaseMenu(){
 ## ********************** For manipulating databases **********************
 ## create database
 createDatabase(){
-	if [[ ! -d "databases" ]]; then
-		mkdir "databases"
+	if [[ ! -d "$PATHTODB" ]]; then
+		mkdir "$PATHTODB"
 	fi
 	read -p "Enter the new database name -> " dname
 	if [[ -z $dname ]]; then
 		echo "Database name cannot be empty" 
 		return 
 	fi
-	if [[ -d "databases/$dname" ]]; then
-		echo "Database $dname is exists"
+	if [[ -d "$PATHTODB/$dname" ]]; then
+		echo "Databe $dname is exists"
 	else
-		mkdir "databases/$dname"
+		mkdir "$PATHTODB/$dname"
 		echo "Database created"
 	fi
 
@@ -105,15 +106,15 @@ createDatabase(){
 
 ## list databases
 listDatabases(){
-	 ls -1 databases/ | sed 's|^databases/||'
+	 ls -1 $PATHTODB/ | sed 's|^$PATHTODB/||'
 }
 
 ## drop database
 dropDatabase(){
 	local db_name=""
 	read -p "Enter the name of the database: " db_name
-	if [ -d "databases/$db_name" ]; then
-		rm -r "databases/$db_name"
+	if [ -d "$PATHTODB/$db_name" ]; then
+		rm -r "$PATHTODB/$db_name"
 		echo "Database deleted successfully!"
 	else
 		echo "Database doesn't exist"
@@ -125,7 +126,7 @@ dropDatabase(){
 connectToDatabase(){
 	local db_name=""
 	read -p "Enter the name of the database -> " db_name
-	if [ -d "databases/$db_name/" ]; then
+	if [ -d "$PATHTODB/$db_name/" ]; then
 		CURRDATABASE="$db_name"
 		printf "\nConnected successfully to $CURRDATABASE\n"
 		displayDatabaseMenu
@@ -139,7 +140,99 @@ connectToDatabase(){
 ## ********************** For manupulating tables ************************
 ## create table
 createTable(){
-	echo "Create Table"
+    local tb_name=""
+    read -p "Enter the name of the table -> " tb_name
+
+    # Check if the table already exists
+    if [ -f "$PATHTODB/$CURRDATABAS/$tb_name" ]; then
+        echo "This table already exists"
+    elif [ -z "$tb_name" ]; then
+        echo "Empty table name!"
+    else
+        # Create the table file
+        touch "$PATHTODB/$CURRDATABAS/$tb_name"
+        local columns=()
+        echo "Enter columns (Write 'exit' to stop)"
+        
+        while true; do
+            local column=""
+            read -p "Enter column name: " column
+
+            # Exit the loop
+            if [[ ${column,,} == "exit" ]]; then
+                break
+            fi
+            
+			PS="Choose the data type: "
+            select datatype in "integer" "string" "boolean" "float" "character"; do
+				case $REPLY in
+					1)
+						column+=":int"
+						break
+						;;
+					2)
+						column+=":string"
+						break
+						;;
+					3)
+						column+=":boolean"
+						break
+						;;
+					4)
+						column+=":float"
+						break
+						;;
+					5)
+						column+=":char"
+						break
+						;;
+					*)
+						echo "Invalid data type"
+						continue
+						;;
+				esac
+			done
+
+            PS3="Allow null values? "
+            select choice in "Null" "Not null"; do
+                case $REPLY in
+                    1)
+                        column+=":null"
+                        break
+                        ;;
+                    2)
+                        column+=":notNull"
+                        break
+                        ;;
+                    *)
+                        echo "Invalid choice, try again."
+                        ;;
+                esac
+            done
+
+            PS3="Allow unique values? "
+            select choice in "Unique" "Not Unique"; do
+                case $REPLY in
+                    1)
+                        column+=":unique"
+                        break
+                        ;;
+                    2)
+                        column+=":notUnique"
+                        break
+                        ;;
+                    *)
+                        echo "Invalid choice, try again."
+                        ;;
+                esac
+            done
+
+
+			columns+=("$column")			
+			echo ${columns[@]} >> $PATHTODB/$CURRDATABAS/$tb_name
+        done
+
+    fi
 }
 
 ## list tables
