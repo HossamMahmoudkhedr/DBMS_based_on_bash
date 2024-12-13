@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 ## Global Variables
 CURRDATABASE=""
 
@@ -53,12 +54,28 @@ displayDatabaseMenu(){
 ## ********************** For manipulating databases **********************
 ## create database
 createDatabase(){
-	echo "Create Database"
+
+	
+	if [[ ! -d "databases" ]]; then
+		mkdir "databases"
+	fi
+	read -p "Enter the new database name -> " dname
+	if [[ -z $dname ]]; then
+		echo "Database name cannot be empty" 
+		return 
+	fi
+	if [[ -d "databases/$dname" ]]; then
+		echo "Databe $dname is exists"
+	else
+		mkdir "databases/$dname"
+		echo "Database created"
+	fi
+
 }
 
 ## list databases
 listDatabases(){
-	echo "List Databases"
+	 ls -1 databases/ | sed 's|^databases/||'
 }
 
 ## drop database
@@ -86,6 +103,7 @@ connectToDatabase(){
 		echo "This database doesn't exist
 	fi
 }
+
 
 
 ## ********************** For manupulating tables ************************
@@ -129,4 +147,36 @@ disconnect(){
 	echo "Disconnect"
 }
 
-displayDatabaseMenu
+
+## ********************* For display menus ********************
+## For display the main menu
+displayMainMenu(){
+        local mainmenu=("Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit" )
+        select choice in "${mainmenu[@]}"; do
+                case $REPLY in
+                        1)
+                                echo "Create Database Selected"
+                                createDatabase
+                                ;;
+                        2)
+                                echo "List Database Selected"
+				listDatabases
+                                ;;
+                        3)
+                                echo "Connect to Database Selected"
+                                ;;
+                        4)
+                                echo "Drop Database Selected"
+                                ;;
+                        5)
+                                echo "Exit The Program"
+                                exit 0
+                                ;;
+                        *)
+                                echo "Invailid choice! Please select number between 1 and ${#mainmenu}"
+                                ;;
+                esac
+        done
+}
+displayMainMenu
+
