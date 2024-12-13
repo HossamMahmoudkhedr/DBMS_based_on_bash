@@ -229,7 +229,7 @@ createTable(){
 
 
 			columns+=("$column")			
-			echo ${columns[@]} >> $PATHTODB/$CURRDATABASE/$tb_name
+			echo ${columns[@]} > $PATHTODB/$CURRDATABASE/$tb_name
         done
 
     fi
