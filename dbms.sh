@@ -237,12 +237,19 @@ createTable(){
 
 ## list tables
 listTables(){
-	echo "List Tables"
+	ls -1 $PATHTODB/$CURRDATABASE | sed 's|^$PATHTODB/$CURRDATABASE||'
 }
 
 ## drop table
 dropTable(){
-	echo "Drop Table"
+	local table_name=""
+	read -p "Enter the name of the table: " table_name
+	if [ -f "$PATHTODB/$CURRDATABASE/$table_name" ]; then
+		rm  "$PATHTODB/$CURRDATABASE/$table_name"
+		echo "Table deleted successfully!"
+	else
+		echo "Table doesn't exist"
+	fi
 }
 
 ## insert into table
