@@ -7,26 +7,54 @@ CURRDATABASE=""
 ## ********************* For display menus ********************
 ## For display the main menu
 displayMainMenu(){
-	echo "Display Main"
+        local mainmenu=("Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit" )
+        select choice in "${mainmenu[@]}"; do
+                case $REPLY in
+                        1)
+                                echo "Create Database Selected"
+                                createDatabase
+                                ;;
+                        2)
+                                echo "List Database Selected"
+								listDatabases
+                                ;;
+                        3)
+								echo "Connect to database selected"
+								connectToDatabase
+                                ;;
+                        4)
+								echo "Drop database selected"
+                                dropDatabase
+                                ;;
+                        5)
+                                echo "Exit The Program"
+                                exit 0
+                                ;;
+                        *)
+                                echo "Invailid choice! Please select number between 1 and ${#mainmenu}"
+                                ;;
+                esac
+        done
 }
 
 ## For display operations on the database
 displayDatabaseMenu(){
-	local PS3="Please select an option (type the number)> "
+	
 	options=("Create Table" "List Tables" "Drop Table" "Insert Into Table" "Select From Table" "Delete From Table" "Update Table" "Exit")
 
+	while true; do
 	for i in "${!options[@]}"
 	do
 		printf "%d) %s\n" $((i + 1)) "${options[i]}"
 	done
 
-	read option
+	read -p "Please select an option (type the number)> " option
 		case $option in
 			1) 
 				createTable
 				;;
 			2)
-					listTables
+				listTables
 				;;
 			3) 
 				dropTable
@@ -46,7 +74,11 @@ displayDatabaseMenu(){
 			8)
 				break
 				;;
+			*)
+				echo "Invalid choice try again!"
+				;;
 	esac
+	done
 	
 }
 
@@ -54,8 +86,6 @@ displayDatabaseMenu(){
 ## ********************** For manipulating databases **********************
 ## create database
 createDatabase(){
-
-	
 	if [[ ! -d "databases" ]]; then
 		mkdir "databases"
 	fi
@@ -82,7 +112,6 @@ listDatabases(){
 dropDatabase(){
 	local db_name=""
 	read -p "Enter the name of the database: " db_name
-	echo $db_name
 	if [ -d "databases/$db_name" ]; then
 		rm -r "databases/$db_name"
 		echo "Database deleted successfully!"
@@ -95,10 +124,11 @@ dropDatabase(){
 ## connect to datbase
 connectToDatabase(){
 	local db_name=""
-	read -p "Enter the name of the database" db_name
-	if [ -d "databases/db_name" ]; then
-		$CURRDATABASE=$db_name
-		echo "Connected successfully to $CURRDATABASE"
+	read -p "Enter the name of the database -> " db_name
+	if [ -d "databases/$db_name/" ]; then
+		CURRDATABASE="$db_name"
+		printf "\nConnected successfully to $CURRDATABASE\n"
+		displayDatabaseMenu
 	else
 		echo "This database doesn't exist"
 	fi
@@ -147,36 +177,5 @@ disconnect(){
 	echo "Disconnect"
 }
 
-
-## ********************* For display menus ********************
-## For display the main menu
-displayMainMenu(){
-        local mainmenu=("Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit" )
-        select choice in "${mainmenu[@]}"; do
-                case $REPLY in
-                        1)
-                                echo "Create Database Selected"
-                                createDatabase
-                                ;;
-                        2)
-                                echo "List Database Selected"
-				listDatabases
-                                ;;
-                        3)
-                                echo "Connect to Database Selected"
-                                ;;
-                        4)
-                                echo "Drop Database Selected"
-                                ;;
-                        5)
-                                echo "Exit The Program"
-                                exit 0
-                                ;;
-                        *)
-                                echo "Invailid choice! Please select number between 1 and ${#mainmenu}"
-                                ;;
-                esac
-        done
-}
 displayMainMenu
 
