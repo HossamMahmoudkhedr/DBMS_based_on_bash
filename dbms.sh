@@ -100,7 +100,7 @@ connectToDatabase(){
 		$CURRDATABASE=$db_name
 		echo "Connected successfully to $CURRDATABASE"
 	else
-		echo "This database doesn't exist
+		echo "This database doesn't exist"
 	fi
 }
 
