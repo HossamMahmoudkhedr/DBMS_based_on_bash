@@ -19,7 +19,7 @@ createDatabase(){
 		return 
 	fi
 	if [[ -d "databases/$dname" ]]; then
-		echo "Databe $dname is exists"
+		echo "Database $dname is exists"
 	else
 		mkdir "databases/$dname"
 		echo "Database created"
