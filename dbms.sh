@@ -144,13 +144,13 @@ createTable(){
     read -p "Enter the name of the table -> " tb_name
 
     # Check if the table already exists
-    if [ -f "$PATHTODB/$CURRDATABAS/$tb_name" ]; then
+    if [ -f "$PATHTODB/$CURRDATABASE/$tb_name" ]; then
         echo "This table already exists"
     elif [ -z "$tb_name" ]; then
         echo "Empty table name!"
     else
         # Create the table file
-        touch "$PATHTODB/$CURRDATABAS/$tb_name"
+        touch "$PATHTODB/$CURRDATABASE/$tb_name"
         local columns=()
         echo "Enter columns (Write 'exit' to stop)"
         
@@ -163,7 +163,7 @@ createTable(){
                 break
             fi
             
-			PS="Choose the data type: "
+			PS3="Choose the data type: "
             select datatype in "integer" "string" "boolean" "float" "character"; do
 				case $REPLY in
 					1)
@@ -229,7 +229,7 @@ createTable(){
 
 
 			columns+=("$column")			
-			echo ${columns[@]} >> $PATHTODB/$CURRDATABAS/$tb_name
+			echo ${columns[@]} >> $PATHTODB/$CURRDATABASE/$tb_name
         done
 
     fi
