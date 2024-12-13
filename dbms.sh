@@ -1,14 +1,60 @@
 #!/bin/bash
 
+
+## Global Variables
+CURRDATABASE=""
+
+## ********************* For display menus ********************
+## For display the main menu
+displayMainMenu(){
+	echo "Display Main"
+}
+
 ## For display operations on the database
 displayDatabaseMenu(){
-	echo "test"
+	local PS3="Please select an option (type the number)> "
+	options=("Create Table" "List Tables" "Drop Table" "Insert Into Table" "Select From Table" "Delete From Table" "Update Table" "Exit")
+
+	for i in "${!options[@]}"
+	do
+		printf "%d) %s\n" $((i + 1)) "${options[i]}"
+	done
+
+	read option
+		case $option in
+			1) 
+				createTable
+				;;
+			2)
+					listTables
+				;;
+			3) 
+				dropTable
+				;;
+			4) 
+				insertIntoTable
+				;;
+			5) 
+				selectFromTable
+				;;
+			6)
+				deleteFromTable
+				;;
+			7)
+				updateTable
+				;;
+			8)
+				break
+				;;
+	esac
+	
 }
 
 
 ## ********************** For manipulating databases **********************
 ## create database
 createDatabase(){
+
 	
 	if [[ ! -d "databases" ]]; then
 		mkdir "databases"
@@ -24,6 +70,7 @@ createDatabase(){
 		mkdir "databases/$dname"
 		echo "Database created"
 	fi
+
 }
 
 ## list databases
@@ -33,46 +80,74 @@ listDatabases(){
 
 ## drop database
 dropDatabase(){
-	 echo "test"
+	local db_name=""
+	read -p "Enter the name of the database: " db_name
+	echo $db_name
+	if [ -d "databases/$db_name" ]; then
+		rm -r "databases/$db_name"
+		echo "Database deleted successfully!"
+	else
+		echo "Database doesn't exist"
+	fi
+
 }
 
 ## connect to datbase
-connectToDatabase(){ echo "test"
+connectToDatabase(){
+	local db_name=""
+	read -p "Enter the name of the database" db_name
+	if [ -d "databases/db_name" ]; then
+		$CURRDATABASE=$db_name
+		echo "Connected successfully to $CURRDATABASE"
+	else
+		echo "This database doesn't exist"
+	fi
 }
+
 
 
 ## ********************** For manupulating tables ************************
 ## create table
-createTable(){ echo "test"
+createTable(){
+	echo "Create Table"
 }
 
 ## list tables
-listTables(){ echo "test"
+listTables(){
+	echo "List Tables"
 }
 
 ## drop table
-dropTable(){ echo "test"
+dropTable(){
+	echo "Drop Table"
 }
 
 ## insert into table
-insertIntoTable(){ echo "test"
+insertIntoTable(){
+	echo "Insert Into Table"
 }
 
 ## select from table
-selectFromTable(){ echo "test"
+selectFromTable(){
+	echo "Select From Table"
 }
 
 ## delete from table
-deleteFromTable(){ echo "test"
+deleteFromTable(){
+	echo "Delete From Table"
 }
 
 ## update table
-updateTable(){ echo "test"
+updateTable(){
+	echo "Update Table"
 }
 
 ## disconnect form database
-disconnect(){ echo "test"
+disconnect(){
+	echo "Disconnect"
 }
+
+
 ## ********************* For display menus ********************
 ## For display the main menu
 displayMainMenu(){
@@ -104,3 +179,4 @@ displayMainMenu(){
         done
 }
 displayMainMenu
+
