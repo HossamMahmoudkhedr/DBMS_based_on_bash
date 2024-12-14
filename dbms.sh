@@ -228,10 +228,28 @@ createTable(){
             done
 
 
-			columns+=("$column")			
-			echo ${columns[@]} > $PATHTODB/$CURRDATABASE/$tb_name
+			columns+=("$column")
+			echo ${columns[@]}			
         done
+			
 
+		PS3="Which one of the columns is the primary key? -> "
+		select choice in "${columns[@]}"; do
+    		if [[ -n $choice ]]; then
+        		for i in "${!columns[@]}"; do
+            		if [[ $REPLY -eq $((i + 1)) ]]; then
+						# Append (PK) to the selected column
+						# columns[$i]=$(echo "${columns[$i]}" | sed -E 's/(:[a-zA-Z]+)(:)/\1(PK)\2/')
+						columns[$i]="${columns[$i]/:/:PK:}"
+						echo "Primary key set to: ${columns[$i]}"
+						break 2
+            		fi
+        		done
+    		else
+        	echo "Invalid choice, please try again."
+    		fi
+		done
+		echo ${columns[@]} > $PATHTODB/$CURRDATABASE/$tb_name
     fi
 }
 
