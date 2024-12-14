@@ -41,7 +41,7 @@ displayMainMenu(){
 ## For display operations on the database
 displayDatabaseMenu(){
 	
-	options=("Create Table" "List Tables" "Drop Table" "Insert Into Table" "Select From Table" "Delete From Table" "Update Table" "Exit")
+	options=("Create Table" "List Tables" "Drop Table" "Insert Into Table" "Select From Table" "Delete From Table" "Update Table" "Disconnect Database" "Exit")
 
 	while true; do
 	for i in "${!options[@]}"
@@ -73,6 +73,9 @@ displayDatabaseMenu(){
 				updateTable
 				;;
 			8)
+				disconnect
+				;;
+			9)
 				exit 0
 				;;
 			*)
@@ -292,7 +295,9 @@ updateTable(){
 
 ## disconnect form database
 disconnect(){
-	echo "Disconnect"
+	echo "Disconnected from $CURRDATABASE"
+	displayMainMenu
+	$CURRDATABASE=""
 }
 
 displayMainMenu
