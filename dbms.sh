@@ -274,8 +274,26 @@ dropTable(){
 }
 
 ## insert into table
+##id:PK:int:notNull:unique 
 insertIntoTable(){
-	echo "Insert Into Table"
+	local table_name="";
+	read -p "Enter table name -> " table_name
+	if [ ! -f "PATHTODB/$CURRDATABASE/$table_name" ]; then
+		echo "Table not found"
+	else
+		local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
+		local row=()
+		for s_coulmn in "${meta_data[@]}"; do
+			local col_name=$(echo $s_coulmn | cut -d':' -f1)
+			local col_type=$(echo $s_coulmn | cut -d':' -f2)
+			local col_defult=$(echo $s_coulmn | cut -d':' -f3)
+			local col_stutas=$(echo $s_coulmn | cut -d':' -f4)
+			local col_pk=$(echo $s_coulmn | grep -o ":PK")
+			
+		done 
+	fi
+	$column[@] < $PATHTODB/$CURRDATABASE/$tb_name
+
 }
 
 ## select from table
