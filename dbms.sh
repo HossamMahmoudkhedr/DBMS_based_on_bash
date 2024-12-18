@@ -291,68 +291,71 @@ insertIntoTable(){
 			local col_defult=$(echo $s_coulmn | cut -d':' -f3)
 			local col_stutas=$(echo $s_coulmn | cut -d':' -f4)
 			local col_pk=$(echo $s_coulmn | grep -o ":PK")
-			local value
+			local value=""
 			while true; do
 				read -p "Enetr the value for coulumn $col_name($col_type , $col_defult) -> " value
-				if [[ -z $value ]]; then
+				if [[ $value == "" ]]; then
 					if [[ $col_defult == "notNull" ]]; then
 						echo "This column does not allow null values. Please enter a value."
 						continue
 					fi
-					
 				fi
-
-				case $col_type in 
-					int)
-                    if ! [[ $value =~ ^[0-9]+$ ]]; then
-                        echo "Invalid integer value. Try again."
-                        continue
-                    fi
-                    ;;
-					float)
-                    if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-                        echo "Invalid float value. Try again."
-                        continue
-                    fi
-                    ;;
-					boolean)
-                    if ! [[ $value =~ ^(true|false)$ ]]; then
-                        echo "Invalid boolean value (true/false). Try again."
-                        continue
-                    fi
-                    ;;
-					string|char)
-                    # Strings are generally valid without additional checks
-                    if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
-                        echo "Invalid character value. Enter a single character."
-                        continue
-                    fi
-                    ;;
-
-				esac
-				if [[ $col_stutas == "unique" ]]; then 
-					col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
-					if [[ -z $col_index ]]; then
-						echo "Error: Could not find the column index for $col_name."
-						exit 1
-					fi
-					col_values=$(awk -F':' -v col_idx="$col_index" '{print $col_idx}' "$PATHTODB/$CURRDATABASE/$table_name")					
-					if echo "$col_values" | grep -qx "$value"; then
-						if [[ -n $col_pk ]]; then
-							echo "Primary key must be unique. Try another."
-						else
-							echo "Column value must be unique. Try another."
+				if [[ $value != "" || -n $value ]];then
+					case $col_type in 
+						int)
+						if ! [[ $value =~ ^[0-9]+$ ]]; then
+							echo "Invalid integer value. Try again."
+							continue
 						fi
-						continue
-					fi
-				fi
+						;;
+						float)
+						if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+							echo "Invalid float value. Try again."
+							continue
+						fi
+						;;
+						boolean)
+						if ! [[ $value =~ ^(true|false)$ ]]; then
+							echo "Invalid boolean value (true/false). Try again."
+							continue
+						fi
+						;;
+						char)
+						# Strings are generally valid without additional checks
+						if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
+							echo "Invalid character value. Enter a single character."
+							continue
+						fi
+						;;
 
+					esac
+					if [[ $col_stutas == "unique" ]]; then 
+						col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
+						if [[ -z $col_index ]]; then
+							echo "Error: Could not find the column index for $col_name."
+							exit 1
+						fi
+						col_values=$(awk -F':' -v col_idx="$col_index" '{print $col_idx}' "$PATHTODB/$CURRDATABASE/$table_name")					
+						if echo "$col_values" | grep -qx "$value"; then
+							if [[ -n $col_pk ]]; then
+								echo "Primary key must be unique. Try another."
+							else
+								echo "Column value must be unique. Try another."
+							fi
+							continue
+						fi
+					fi
+				else
+					value="NULL"
+				fi
 
 				row+=("$value")
 				break;
 			done
-		done 
-		echo "${row[*]}" | tr ' ' ':' >> "$PATHTODB/$CURRDATABASE/$table_name"
+		done
+		# echo "${row[*]}" | tr ' ' ':' >> "$PATHTODB/$CURRDATABASE/$table_name"
+		# echo "$(IFS=:; echo "${row[*]}")" >> "$PATHTODB/$CURRDATABASE/$table_name"
+		echo "$(IFS=:; echo "${row[*]}")" >> "$PATHTODB/$CURRDATABASE/$table_name"
     	echo "Row inserted successfully!"
 	fi
 }
