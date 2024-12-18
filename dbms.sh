@@ -8,6 +8,7 @@ PATHTODB="databases"
 ## ********************* For display menus ********************
 ## For display the main menu
 displayMainMenu(){
+		
         local mainmenu=("Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit" )
         select choice in "${mainmenu[@]}"; do
                 case $REPLY in
@@ -32,7 +33,7 @@ displayMainMenu(){
                                 exit 0
                                 ;;
                         *)
-                                echo "Invailid choice! Please select number between 1 and ${#mainmenu}"
+                                echo "Invailid choice! Please select number between 1 and 5"
                                 ;;
                 esac
         done
@@ -274,14 +275,14 @@ dropTable(){
 }
 
 ## insert into table
-##id:PK:int:notNull:unique 
+##id:int:notNull:unique:PK name:string:notNull:notUnique age:int:notNull:notUnique 
 insertIntoTable(){
 	local table_name="";
 	read -p "Enter table name -> " table_name
-	if [ ! -f "PATHTODB/$CURRDATABASE/$table_name" ]; then
+	if [ ! -f "$PATHTODB/$CURRDATABASE/$table_name" ]; then
 		echo "Table not found"
 	else
-		local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
+		local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$table_name"))
 		local row=()
 		for s_coulmn in "${meta_data[@]}"; do
 			local col_name=$(echo $s_coulmn | cut -d':' -f1)
@@ -289,11 +290,70 @@ insertIntoTable(){
 			local col_defult=$(echo $s_coulmn | cut -d':' -f3)
 			local col_stutas=$(echo $s_coulmn | cut -d':' -f4)
 			local col_pk=$(echo $s_coulmn | grep -o ":PK")
-			
-		done 
-	fi
-	$column[@] < $PATHTODB/$CURRDATABASE/$tb_name
+			local value
+			while true; do
+				read -p "Enetr the value for coulumn $col_name($col_type , $col_defult) -> " value
+				if [[ -z $value ]]; then
+					if [[ $col_defult == "notNull" ]]; then
+						echo "This column does not allow null values. Please enter a value."
+						continue
+					fi
+					
+				fi
 
+				case $col_type in 
+					int)
+                    if ! [[ $value =~ ^[0-9]+$ ]]; then
+                        echo "Invalid integer value. Try again."
+                        continue
+                    fi
+                    ;;
+					float)
+                    if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                        echo "Invalid float value. Try again."
+                        continue
+                    fi
+                    ;;
+					boolean)
+                    if ! [[ $value =~ ^(true|false)$ ]]; then
+                        echo "Invalid boolean value (true/false). Try again."
+                        continue
+                    fi
+                    ;;
+					string|char)
+                    # Strings are generally valid without additional checks
+                    if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
+                        echo "Invalid character value. Enter a single character."
+                        continue
+                    fi
+                    ;;
+
+				esac
+				if [[ $col_stutas == "unique" ]]; then 
+					col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
+					if [[ -z $col_index ]]; then
+						echo "Error: Could not find the column index for $col_name."
+						exit 1
+					fi
+					col_values=$(awk -F':' -v col_idx="$col_index" '{print $col_idx}' "$PATHTODB/$CURRDATABASE/$table_name")					
+					if echo "$col_values" | grep -qx "$value"; then
+						if [[ -n $col_pk ]]; then
+							echo "Primary key must be unique. Try another."
+						else
+							echo "Column value must be unique. Try another."
+						fi
+						continue
+					fi
+				fi
+
+
+				row+=("$value")
+				break;
+			done
+		done 
+		echo "${row[*]}" | tr ' ' ':' >> "$PATHTODB/$CURRDATABASE/$table_name"
+    	echo "Row inserted successfully!"
+	fi
 }
 
 ## select from table
