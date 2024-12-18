@@ -233,7 +233,7 @@ createTable(){
 
 
 			columns+=("$column")
-			echo ${columns[@]}			
+			##echo ${columns[@]}			
         done
 			
 
@@ -244,7 +244,8 @@ createTable(){
             		if [[ $REPLY -eq $((i + 1)) ]]; then
 						# Append (PK) to the selected column
 						# columns[$i]=$(echo "${columns[$i]}" | sed -E 's/(:[a-zA-Z]+)(:)/\1(PK)\2/')
-						columns[$i]="${columns[$i]/:/:PK:}"
+						# columns[$i]="${columns[$i]/:/:PK:}"
+						columns[$i]+=":PK"
 						echo "Primary key set to: ${columns[$i]}"
 						break 2
             		fi
