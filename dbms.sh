@@ -233,7 +233,7 @@ createTable(){
 
 
 			columns+=("$column")
-			echo ${columns[@]}			
+			##echo ${columns[@]}			
         done
 			
 
@@ -244,7 +244,8 @@ createTable(){
             		if [[ $REPLY -eq $((i + 1)) ]]; then
 						# Append (PK) to the selected column
 						# columns[$i]=$(echo "${columns[$i]}" | sed -E 's/(:[a-zA-Z]+)(:)/\1(PK)\2/')
-						columns[$i]="${columns[$i]/:/:PK:}"
+						# columns[$i]="${columns[$i]/:/:PK:}"
+						columns[$i]+=":PK"
 						echo "Primary key set to: ${columns[$i]}"
 						break 2
             		fi
@@ -290,16 +291,16 @@ insertIntoTable(){
 			local col_defult=$(echo $s_coulmn | cut -d':' -f3)
 			local col_stutas=$(echo $s_coulmn | cut -d':' -f4)
 			local col_pk=$(echo $s_coulmn | grep -o ":PK")
-			local value = ""
+			local value
 			while true; do
 				read -p "Enetr the value for coulumn $col_name($col_type , $col_defult) -> " value
-				if [[ -z $value ]]; then
+				if [[ $value == "" ]]; then
 					if [[ $col_defult == "notNull" ]]; then
 						echo "This column does not allow null values. Please enter a value."
 						continue
 					fi
-					
 				fi
+
 				case $col_type in 
 					int)
                     if ! [[ $value =~ ^[0-9]+$ ]]; then
@@ -319,13 +320,14 @@ insertIntoTable(){
                         continue
                     fi
                     ;;
-					char)
+					string|char)
                     # Strings are generally valid without additional checks
                     if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
                         echo "Invalid character value. Enter a single character."
                         continue
                     fi
                     ;;
+
 				esac
 				if [[ $col_stutas == "unique" ]]; then 
 					col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
@@ -343,11 +345,15 @@ insertIntoTable(){
 						continue
 					fi
 				fi
+
+
 				row+=("$value")
 				break;
 			done
-		done 
-		echo "${row[*]}" | tr ' ' ':' >> "$PATHTODB/$CURRDATABASE/$table_name"
+		done
+		# echo "${row[*]}" | tr ' ' ':' >> "$PATHTODB/$CURRDATABASE/$table_name"
+		# echo "$(IFS=:; echo "${row[*]}")" >> "$PATHTODB/$CURRDATABASE/$table_name"
+		echo "$(IFS=:; echo "${row[*]}")" >> "$PATHTODB/$CURRDATABASE/$table_name"
     	echo "Row inserted successfully!"
 	fi
 }

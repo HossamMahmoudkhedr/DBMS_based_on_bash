@@ -1,1 +1,10 @@
-id:PK:int:notNull:unique name:string:notNull:notUnique age:int:notNull:notUnique
+id:int:notNull:unique:PK name:string:notNull:notUnique age:int:null:notUnique
+1:Youssef:22
+2:Hossam:22
+3:NULL:NULL
+4:Khaled:NULL
+5:Khaled:NULL
+6:Ibrahem:NULL
+7:Khaled:Bogy:NULL
+8:Khaled:Bogy:3
+11:Youssef Abdo:23
