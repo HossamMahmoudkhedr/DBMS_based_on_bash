@@ -473,17 +473,25 @@ updateTable(){
 			if [[ "$primary" -eq "$primary_key" ]]; then
 				local decision
 				local col_number
+				local value
+				local column
+				local new_value
 				PS3="Which one of the column name to update -> "
 				select choice in "${meta_data[@]}"; do
 					if [[ -n $choice ]]; then
+					echo "This is the line to be modified -> $line"
 						for i in "${!meta_data[@]}"; do
 							if [[ $REPLY -eq $((i + 1)) ]]; then
-								col_number=$REPLY
-								local column=${meta_data[$i]}
-								local value=$(echo "$line" | awk -F: '{print $col_number}')															
+								col_number=$(($REPLY+1))
+								column=${meta_data[$i]}
+								value=$(echo $line | awk -F: -v col="$col_number" '{print $col}')	
+								break														
 							fi
 						done
-						echo $column $value
+						if [[ -n $column && -n $value ]]; then
+							echo "$column = $value"
+							break
+						fi
 					else
 					echo "Invalid choice, please try again."
 					fi
@@ -491,7 +499,19 @@ updateTable(){
 				while true; do
 				read -p "Are you sure to update the row with id = $primary_key (y or n) -> " decision
 				if [ $decision == "y" ];then
-					echo "test"
+						read -p "Enter the new value -> " new_value
+						if [[ -n $new_value ]];then
+							# ########################
+							# Add the checker for the data types here
+							# ########################
+							sed -i "${line_num}s/$value/$new_value/" "$PATHTODB/$CURRDATABASE/$tb_name"
+							echo ""
+							cat $PATHTODB/$CURRDATABASE/$tb_name
+							echo ""
+							break
+						else
+							echo "You have to enter a value"
+						fi
 				elif [ $decision == "n" ]; then
 					
 					break
