@@ -497,21 +497,74 @@ updateTable(){
 					fi
 				done 
 				while true; do
+				local col_name=$(echo $column | cut -d':' -f1)
+				local col_type=$(echo $column | cut -d':' -f2)
+				local col_defult=$(echo $column | cut -d':' -f3)
+				local col_stutas=$(echo $column | cut -d':' -f4)
 				read -p "Are you sure to update the row with id = $primary_key (y or n) -> " decision
 				if [ $decision == "y" ];then
+					while true; do
 						read -p "Enter the new value -> " new_value
-						if [[ -n $new_value ]];then
 							# ########################
-							# Add the checker for the data types here
+							if [[ $new_value == "" ]]; then
+								if [[ $col_defult == "notNull" ]]; then
+									echo "This column does not allow null values. Please enter a value."
+									continue
+								fi
+							fi
+
+							case $col_type in 
+								int)
+								if ! [[ $new_value =~ ^[0-9]+$ ]]; then
+									echo "Invalid integer value. Try again."
+									continue
+								fi
+								;;
+								float)
+								if ! [[ $new_value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+									echo "Invalid float value. Try again."
+									continue
+								fi
+								;;
+								boolean)
+								if ! [[ $new_value =~ ^(true|false)$ ]]; then
+									echo "Invalid boolean value (true/false). Try again."
+									continue
+								fi
+								;;
+								string|char)
+								# Strings are generally valid without additional checks
+								if [[ $col_type == "char" && ${#new_value} -ne 1 ]]; then
+									echo "Invalid character value. Enter a single character."
+									continue
+								fi
+								;;
+
+							esac
+							if [[ $col_stutas == "unique" ]]; then 
+								col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
+								if [[ -z $col_index ]]; then
+									echo "Error: Could not find the column index for $col_name."
+									exit 1
+								fi
+								col_values=$(awk -F':' -v col_idx="$col_index" '{print $col_idx}' "$PATHTODB/$CURRDATABASE/$table_name")					
+								if echo "$col_values" | grep -qx "$new_value"; then
+									echo "Column value must be unique. Try another."
+									continue
+								fi
+							fi
+							# row+=("$value")
+							if [ $col_type == "string" ]; then
+								new_value="\"$new_value\""
+							fi
+							break 
+							done
 							# ########################
 							sed -i "${line_num}s/$value/$new_value/" "$PATHTODB/$CURRDATABASE/$tb_name"
-							echo ""
-							cat $PATHTODB/$CURRDATABASE/$tb_name
-							echo ""
+							echo "Done"
 							break
-						else
-							echo "You have to enter a value"
-						fi
+						
+						
 				elif [ $decision == "n" ]; then
 					
 					break
