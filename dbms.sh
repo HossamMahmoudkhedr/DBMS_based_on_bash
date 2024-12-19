@@ -346,7 +346,12 @@ insertIntoTable(){
 						continue
 					fi
 				fi
-				row+=("$value")
+				# row+=("$value")
+				if [ $col_type == "string" ]; then
+                    row+=("\"$value\"")
+                else
+                    row+=("$value")
+                fi
 				break;
 			done
 		done
@@ -388,21 +393,53 @@ deleteFromTable(){
 	local tb_name
 	read -p "Enter the tabel name -> " tb_name
 	checkTable $tb_name
-	local col_name  
-	local pk=""
-	local  -i index=0
-	local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
-	for data in "${meta_data[@]}"; do
-		index=$((index + 1))
-		pk=($(echo $data | grep -o ":PK"))
-		if [[ $pk != ""  ]]; then
-			col_name=($(echo $data | cut -d':' -f1))
-			break
+	if [ $? -eq 0 ];then
+		
+		local col_name  
+		local line_num
+		local pk=""
+		local  -i index=1
+		local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
+		for data in "${meta_data[@]}"; do
+			index=$((index + 1))
+			pk=($(echo $data | grep -o ":PK"))
+			if [[ $pk != ""  ]]; then
+				col_name=($(echo $data | cut -d':' -f1))
+				break
+			fi
+		done
+		local primary_key
+		read -p "Enter the ${col_name} -> " primary_key
+		local rnum=($(grep -nw "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name ))
+		if [ ${#rnum[@]} -ne 0 ]; then
+			for line in "${rnum[@]}";do
+
+			local line_num=$(echo "$line" | awk -F: '{print $1}')
+			local primary=$(echo "$line" | awk -F: -v idx="$index" '{print $idx}')
+
+			
+			if [[ "$primary" -eq "$primary_key" ]]; then
+				local decision
+				
+				while true; do
+				read -p "Are you sure to delete the row with id = $primary_key (y or n) -> " decision
+				if [ $decision == "y" ];then
+					sed -i "${line_num}d" "$PATHTODB/$CURRDATABASE/$tb_name"
+					echo "The row has been deleted successfully!"
+					break
+				elif [ $decision == "n" ]; then
+					break
+				fi
+				done
+			fi
+			done
+		else
+			# echo "$primary_key Not Found!"
+			echo "There is no value of $col_name equals $primary_key"
 		fi
-	done
-	local primary_key
-	read -p "Enter the ${col_name} -> " primary_key
-	local rnum=($(grep -n "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name )) 
+	else
+		echo "Table Not Found!"
+	fi
 }
 
 ## update table

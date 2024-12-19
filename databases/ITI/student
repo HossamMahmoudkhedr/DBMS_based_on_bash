@@ -1,10 +1,10 @@
 id:int:notNull:unique:PK name:string:notNull:notUnique age:int:null:notUnique
 1:Youssef:22
+8:Khaled:3
 2:Hossam:22
-3:NULL:NULL
-4:Khaled:NULL
-5:Khaled:NULL
+4:Khaled:5
+5:Khaled Bogy:4
 6:Ibrahem:NULL
 7:Khaled:Bogy:NULL
-8:Khaled:Bogy:3
 11:Youssef Abdo:23
+20:"Mohamed Ali":30
