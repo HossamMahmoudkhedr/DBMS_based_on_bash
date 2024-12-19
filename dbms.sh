@@ -385,7 +385,22 @@ selectFromTable(){
 
 ## delete from table
 deleteFromTable(){
-	echo "Delete From Table"
+	local tb_name
+	read -p "Enter the tabel name -> " tb_name
+	checkTable $tb_name
+	local col_name  
+	local pk=""
+	local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
+	for data in "${meta_data[@]}"; do
+		pk=($(echo $data | grep -o ":PK"))
+		if [[ $pk != ""  ]]; then
+			col_name=($(echo $data | cut -d':' -f1))
+			break
+		fi
+	done
+	local primary_key
+	read -p "Enter the ${col_name} -> " primary_key
+	
 }
 
 ## update table
