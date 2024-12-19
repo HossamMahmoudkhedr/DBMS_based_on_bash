@@ -402,7 +402,7 @@ deleteFromTable(){
 	done
 	local primary_key
 	read -p "Enter the ${col_name} -> " primary_key
-	local rnum=($(grep -n "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name )) 
+	local rnum=($(grep -n "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name  )) 
 }
 
 ## update table
