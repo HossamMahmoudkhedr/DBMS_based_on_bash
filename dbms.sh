@@ -279,7 +279,7 @@ dropTable(){
 ## insert into table
 ##id:int:notNull:unique:PK name:string:notNull:notUnique age:int:notNull:notUnique 
 insertIntoTable(){
-	local table_name="";
+	local table_name=""
 	read -p "Enter table name -> " table_name
 	if [ ! -f "$PATHTODB/$CURRDATABASE/$table_name" ]; then
 		echo "Table not found"
@@ -292,7 +292,7 @@ insertIntoTable(){
 			local col_defult=$(echo $s_coulmn | cut -d':' -f3)
 			local col_stutas=$(echo $s_coulmn | cut -d':' -f4)
 			local col_pk=$(echo $s_coulmn | grep -o ":PK")
-			local value=""
+			local value
 			while true; do
 				read -p "Enetr the value for coulumn $col_name($col_type , $col_defult) -> " value
 				if [[ $value == "" ]]; then
@@ -301,55 +301,51 @@ insertIntoTable(){
 						continue
 					fi
 				fi
-				if [[ $value != "" || -n $value ]];then
-					case $col_type in 
-						int)
-						if ! [[ $value =~ ^[0-9]+$ ]]; then
-							echo "Invalid integer value. Try again."
-							continue
-						fi
-						;;
-						float)
-						if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-							echo "Invalid float value. Try again."
-							continue
-						fi
-						;;
-						boolean)
-						if ! [[ $value =~ ^(true|false)$ ]]; then
-							echo "Invalid boolean value (true/false). Try again."
-							continue
-						fi
-						;;
-						char)
-						# Strings are generally valid without additional checks
-						if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
-							echo "Invalid character value. Enter a single character."
-							continue
-						fi
-						;;
 
-					esac
-					if [[ $col_stutas == "unique" ]]; then 
-						col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
-						if [[ -z $col_index ]]; then
-							echo "Error: Could not find the column index for $col_name."
-							exit 1
-						fi
-						col_values=$(awk -F':' -v col_idx="$col_index" '{print $col_idx}' "$PATHTODB/$CURRDATABASE/$table_name")					
-						if echo "$col_values" | grep -qx "$value"; then
-							if [[ -n $col_pk ]]; then
-								echo "Primary key must be unique. Try another."
-							else
-								echo "Column value must be unique. Try another."
-							fi
-							continue
-						fi
+				case $col_type in 
+					int)
+                    if ! [[ $value =~ ^[0-9]+$ ]]; then
+                        echo "Invalid integer value. Try again."
+                        continue
+                    fi
+                    ;;
+					float)
+                    if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                        echo "Invalid float value. Try again."
+                        continue
+                    fi
+                    ;;
+					boolean)
+                    if ! [[ $value =~ ^(true|false)$ ]]; then
+                        echo "Invalid boolean value (true/false). Try again."
+                        continue
+                    fi
+                    ;;
+					string|char)
+                    # Strings are generally valid without additional checks
+                    if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
+                        echo "Invalid character value. Enter a single character."
+                        continue
+                    fi
+                    ;;
+
+				esac
+				if [[ $col_stutas == "unique" ]]; then 
+					col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
+					if [[ -z $col_index ]]; then
+						echo "Error: Could not find the column index for $col_name."
+						exit 1
 					fi
-				else
-					value="NULL"
+					col_values=$(awk -F':' -v col_idx="$col_index" '{print $col_idx}' "$PATHTODB/$CURRDATABASE/$table_name")					
+					if echo "$col_values" | grep -qx "$value"; then
+						if [[ -n $col_pk ]]; then
+							echo "Primary key must be unique. Try another."
+						else
+							echo "Column value must be unique. Try another."
+						fi
+						continue
+					fi
 				fi
-
 				row+=("$value")
 				break;
 			done
@@ -389,7 +385,24 @@ selectFromTable(){
 
 ## delete from table
 deleteFromTable(){
-	echo "Delete From Table"
+	local tb_name
+	read -p "Enter the tabel name -> " tb_name
+	checkTable $tb_name
+	local col_name  
+	local pk=""
+	local  -i index=0
+	local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
+	for data in "${meta_data[@]}"; do
+		index=$((index + 1))
+		pk=($(echo $data | grep -o ":PK"))
+		if [[ $pk != ""  ]]; then
+			col_name=($(echo $data | cut -d':' -f1))
+			break
+		fi
+	done
+	local primary_key
+	read -p "Enter the ${col_name} -> " primary_key
+	local rnum=($(grep -n "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name )) 
 }
 
 ## update table
