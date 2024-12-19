@@ -390,8 +390,10 @@ deleteFromTable(){
 	checkTable $tb_name
 	local col_name  
 	local pk=""
+	local  -i index=0
 	local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
 	for data in "${meta_data[@]}"; do
+		index=$((index + 1))
 		pk=($(echo $data | grep -o ":PK"))
 		if [[ $pk != ""  ]]; then
 			col_name=($(echo $data | cut -d':' -f1))
@@ -400,7 +402,7 @@ deleteFromTable(){
 	done
 	local primary_key
 	read -p "Enter the ${col_name} -> " primary_key
-	
+	local rnum=($(grep -n "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name )) 
 }
 
 ## update table
