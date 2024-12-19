@@ -345,8 +345,6 @@ insertIntoTable(){
 						continue
 					fi
 				fi
-
-
 				row+=("$value")
 				break;
 			done
