@@ -393,26 +393,121 @@ deleteFromTable(){
 	local tb_name
 	read -p "Enter the tabel name -> " tb_name
 	checkTable $tb_name
-	local col_name  
-	local pk=""
-	local  -i index=0
-	local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
-	for data in "${meta_data[@]}"; do
-		index=$((index + 1))
-		pk=($(echo $data | grep -o ":PK"))
-		if [[ $pk != ""  ]]; then
-			col_name=($(echo $data | cut -d':' -f1))
-			break
+	if [ $? -eq 0 ];then
+		
+		local col_name  
+		local line_num
+		local pk=""
+		local  -i index=1
+		local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
+		for data in "${meta_data[@]}"; do
+			index=$((index + 1))
+			pk=($(echo $data | grep -o ":PK"))
+			if [[ $pk != ""  ]]; then
+				col_name=($(echo $data | cut -d':' -f1))
+				break
+			fi
+		done
+		local primary_key
+		read -p "Enter the ${col_name} -> " primary_key
+		local rnum=($(grep -nw "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name ))
+		if [ ${#rnum[@]} -ne 0 ]; then
+			for line in "${rnum[@]}";do
+
+			local line_num=$(echo "$line" | awk -F: '{print $1}')
+			local primary=$(echo "$line" | awk -F: -v idx="$index" '{print $idx}')
+
+			
+			if [[ "$primary" -eq "$primary_key" ]]; then
+				local decision
+				
+				while true; do
+				read -p "Are you sure to delete the row with id = $primary_key (y or n) -> " decision
+				if [ $decision == "y" ];then
+					sed -i "${line_num}d" "$PATHTODB/$CURRDATABASE/$tb_name"
+					echo "The row has been deleted successfully!"
+					break
+				elif [ $decision == "n" ]; then
+					break
+				fi
+				done
+			fi
+			done
+		else
+			# echo "$primary_key Not Found!"
+			echo "There is no value of $col_name equals $primary_key"
 		fi
-	done
-	local primary_key
-	read -p "Enter the ${col_name} -> " primary_key
-	local rnum=($(grep -n "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name )) 
+	else
+		echo "Table Not Found!"
+	fi
 }
 
 ## update table
 updateTable(){
-	echo "Update Table"
+	local tb_name
+	read -p "Enter the tabel name -> " tb_name
+	checkTable $tb_name
+	if [ $? -eq 0 ];then
+		
+		local col_name  
+		local line_num
+		local pk=""
+		local  -i index=1
+		local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
+		for data in "${meta_data[@]}"; do
+			index=$((index + 1))
+			pk=($(echo $data | grep -o ":PK"))
+			if [[ $pk != ""  ]]; then
+				col_name=($(echo $data | cut -d':' -f1))
+				break
+			fi
+		done
+		local primary_key
+		read -p "Enter the ${col_name} -> " primary_key
+		local rnum=($(grep -nw "$primary_key" $PATHTODB/$CURRDATABASE/$tb_name ))
+		if [ ${#rnum[@]} -ne 0 ]; then
+			for line in "${rnum[@]}";do
+
+			local line_num=$(echo "$line" | awk -F: '{print $1}')
+			local primary=$(echo "$line" | awk -F: -v idx="$index" '{print $idx}')
+
+			
+			if [[ "$primary" -eq "$primary_key" ]]; then
+				local decision
+				local col_number
+				PS3="Which one of the column name to update -> "
+				select choice in "${meta_data[@]}"; do
+					if [[ -n $choice ]]; then
+						for i in "${!meta_data[@]}"; do
+							if [[ $REPLY -eq $((i + 1)) ]]; then
+								col_number=$REPLY
+								local column=${meta_data[$i]}
+								local value=$(echo "$line" | awk -F: '{print $col_number}')															
+							fi
+						done
+						echo $column $value
+					else
+					echo "Invalid choice, please try again."
+					fi
+				done 
+				while true; do
+				read -p "Are you sure to update the row with id = $primary_key (y or n) -> " decision
+				if [ $decision == "y" ];then
+					echo "test"
+				elif [ $decision == "n" ]; then
+					
+					break
+				fi
+				done
+			fi
+			done
+		else
+			# echo "$primary_key Not Found!"
+			echo "There is no value of $col_name equals $primary_key"
+		fi
+	else
+		echo "Table Not Found!"
+	fi
 }
 
 ## disconnect form database
