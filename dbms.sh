@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source ./scripts/utilities.sh
 
 ## Global Variables
 CURRDATABASE=""
@@ -358,7 +359,28 @@ insertIntoTable(){
 
 ## select from table
 selectFromTable(){
-	echo "Select From Table"
+	local tb_name
+	read -p "Enter the table name -> " tb_name
+	
+	checkTable $tb_name
+
+	if [ $? -eq 0 ];then
+		local ID
+		local meta=()
+		read -p "Enter the id value -> " ID
+		meta=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
+		for ((i = 0; i < ${#meta[@]}; i++)); do
+			col_name="${meta[$i]}"
+			if [[ $i -eq $((${#meta[@]} - 1)) ]]; then
+				echo $col_name | awk -F: '{printf "%s\n", $1}'
+			else
+				echo $col_name | awk -F: '{printf "%s | ", $1}'
+			fi
+		done
+		grep -w "$ID" "$PATHTODB/$CURRDATABASE/$tb_name" | awk -F: '{for(i=1; i<=NF; i++) if(i==NF) print $i; else printf "%s | ", $i}'
+	else
+		echo "The table dosen't exist"
+	fi
 }
 
 ## delete from table
