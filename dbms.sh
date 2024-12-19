@@ -470,8 +470,6 @@ updateTable(){
 
 			local line_num=$(echo "$line" | awk -F: '{print $1}')
 			local primary=$(echo "$line" | awk -F: -v idx="$index" '{print $idx}')
-
-			
 			if [[ "$primary" -eq "$primary_key" ]]; then
 				local decision
 				local col_number
