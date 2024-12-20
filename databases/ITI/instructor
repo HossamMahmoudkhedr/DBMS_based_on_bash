@@ -1,2 +1,0 @@
-id:int:notNull:unique:PK name:string:notNull:notUnique track:string:notNull:notUnique
-1,Hossam,20

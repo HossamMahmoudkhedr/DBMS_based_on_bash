@@ -112,7 +112,8 @@ createDatabase(){
 
 ## list databases
 listDatabases(){
-	 ls -1 $PATHTODB/ | sed 's|^$PATHTODB/||'
+	ls -1 $PATHTODB/ | sed 's|^$PATHTODB/||'
+	 echo ""
 }
 
 ## drop database
@@ -340,6 +341,7 @@ selectFromTable(){
 		local ID
 		local meta=()
 		read -p "Enter the id value -> " ID
+		echo ""
 		meta=($(head -n 1 "$PATHTODB/$CURRDATABASE/$tb_name"))
 		for ((i = 0; i < ${#meta[@]}; i++)); do
 			col_name="${meta[$i]}"
@@ -353,8 +355,8 @@ selectFromTable(){
 	else
 		echo ""
 		echo "The table dosen't exist"
-		echo ""
 	fi
+	echo ""
 }
 
 ## delete from table
