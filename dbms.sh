@@ -11,6 +11,7 @@ PATHTODB="databases"
 displayMainMenu(){
 		
         local mainmenu=("Create Database" "List Databases" "Connect to Database" "Drop Database" "Exit" )
+		PS3="Please select an option (type the number)> "
         select choice in "${mainmenu[@]}"; do
                 case $REPLY in
                         1)
@@ -157,7 +158,47 @@ createTable(){
         # Create the table file
         touch "$PATHTODB/$CURRDATABASE/$tb_name"
         local columns=()
-        echo "Enter columns (Write 'exit' to stop)"
+		local pk=""
+		local pk_name
+		local pk_datatype
+		read -p "Enter the primary key name: " pk_name
+		pk+="$pk_name"
+
+		PS3="Choose primary key data type: "
+            select pk_datatype in "integer" "string" "boolean" "float" "character"; do
+				case $REPLY in
+					1)
+						pk+=":int"
+						break
+						;;
+					2)
+						pk+=":string"
+						break
+						;;
+					3)
+						pk+=":boolean"
+						break
+						;;
+					4)
+						pk+=":float"
+						break
+						;;
+					5)
+						pk+=":char"
+						break
+						;;
+					*)
+						echo "Invalid data type"
+						continue
+						;;
+				esac
+			done
+
+			pk+=":notNull:unique:PK"
+			
+			columns+=("$pk")
+
+        echo "Enter the columns (Write 'exit' to stop)"
         
         while true; do
             local column=""
@@ -234,27 +275,28 @@ createTable(){
 
 
 			columns+=("$column")
+			PS3="->"
 			##echo ${columns[@]}			
         done
 			
 
-		PS3="Which one of the columns is the primary key? -> "
-		select choice in "${columns[@]}"; do
-    		if [[ -n $choice ]]; then
-        		for i in "${!columns[@]}"; do
-            		if [[ $REPLY -eq $((i + 1)) ]]; then
-						# Append (PK) to the selected column
-						# columns[$i]=$(echo "${columns[$i]}" | sed -E 's/(:[a-zA-Z]+)(:)/\1(PK)\2/')
-						# columns[$i]="${columns[$i]/:/:PK:}"
-						columns[$i]+=":PK"
-						echo "Primary key set to: ${columns[$i]}"
-						break 2
-            		fi
-        		done
-    		else
-        	echo "Invalid choice, please try again."
-    		fi
-		done
+		# PS3="Which one of the columns is the primary key? -> "
+		# select choice in "${columns[@]}"; do
+    	# 	if [[ -n $choice ]]; then
+        # 		for i in "${!columns[@]}"; do
+        #     		if [[ $REPLY -eq $((i + 1)) ]]; then
+		# 				# Append (PK) to the selected column
+		# 				# columns[$i]=$(echo "${columns[$i]}" | sed -E 's/(:[a-zA-Z]+)(:)/\1(PK)\2/')
+		# 				# columns[$i]="${columns[$i]/:/:PK:}"
+		# 				columns[$i]+=":PK"
+		# 				echo "Primary key set to: ${columns[$i]}"
+		# 				break 2
+        #     		fi
+        # 		done
+    	# 	else
+        # 	echo "Invalid choice, please try again."
+    	# 	fi
+		# done
 		echo ${columns[@]} > $PATHTODB/$CURRDATABASE/$tb_name
     fi
 }
@@ -477,13 +519,13 @@ updateTable(){
 				local column
 				local new_value
 				PS3="Which one of the column name to update -> "
-				select choice in "${meta_data[@]}"; do
+				select choice in "${meta_data[@]:1}"; do
 					if [[ -n $choice ]]; then
 					echo "This is the line to be modified -> $line"
 						for i in "${!meta_data[@]}"; do
 							if [[ $REPLY -eq $((i + 1)) ]]; then
-								col_number=$(($REPLY+1))
-								column=${meta_data[$i]}
+								col_number=$(($REPLY+2))
+								column=${meta_data[$i+1]}
 								value=$(echo $line | awk -F: -v col="$col_number" '{print $col}')	
 								break														
 							fi

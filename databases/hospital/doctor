@@ -1,0 +1,2 @@
+id:int:notNull:unique:PK name:string:notNull:notUnique department:string:notNull:notUnique
+1:"Ahmed":"emergency"
