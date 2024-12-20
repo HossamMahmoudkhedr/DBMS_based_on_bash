@@ -164,34 +164,6 @@ createTable(){
 		pk+="$pk_name"
 
 		PS3="Choose primary key data type: "
-		# select pk_datatype in "integer" "string" "boolean" "float" "character"; do
-		# 	case $REPLY in
-		# 		1)
-		# 			pk+=":int"
-		# 			break
-		# 			;;
-		# 		2)
-		# 			pk+=":string"
-		# 			break
-		# 			;;
-		# 		3)
-		# 			pk+=":boolean"
-		# 			break
-		# 			;;
-		# 		4)
-		# 			pk+=":float"
-		# 			break
-		# 			;;
-		# 		5)
-		# 			pk+=":char"
-		# 			break
-		# 			;;
-		# 		*)
-		# 			echo "Invalid data type"
-		# 			continue
-		# 			;;
-		# 	esac
-		# done
 
 		pk+=$(chooseDataType)
 
@@ -211,34 +183,6 @@ createTable(){
             fi
             
 			PS3="Choose the data type: "
-            # select datatype in "integer" "string" "boolean" "float" "character"; do
-			# 	case $REPLY in
-			# 		1)
-			# 			column+=":int"
-			# 			break
-			# 			;;
-			# 		2)
-			# 			column+=":string"
-			# 			break
-			# 			;;
-			# 		3)
-			# 			column+=":boolean"
-			# 			break
-			# 			;;
-			# 		4)
-			# 			column+=":float"
-			# 			break
-			# 			;;
-			# 		5)
-			# 			column+=":char"
-			# 			break
-			# 			;;
-			# 		*)
-			# 			echo "Invalid data type"
-			# 			continue
-			# 			;;
-			# 	esac
-			# done
 
 			column+=$(chooseDataType)
 
@@ -278,28 +222,9 @@ createTable(){
 
 
 			columns+=("$column")
-			PS3="->"
-			##echo ${columns[@]}			
+			PS3="->"			
         done
 			
-
-		# PS3="Which one of the columns is the primary key? -> "
-		# select choice in "${columns[@]}"; do
-    	# 	if [[ -n $choice ]]; then
-        # 		for i in "${!columns[@]}"; do
-        #     		if [[ $REPLY -eq $((i + 1)) ]]; then
-		# 				# Append (PK) to the selected column
-		# 				# columns[$i]=$(echo "${columns[$i]}" | sed -E 's/(:[a-zA-Z]+)(:)/\1(PK)\2/')
-		# 				# columns[$i]="${columns[$i]/:/:PK:}"
-		# 				columns[$i]+=":PK"
-		# 				echo "Primary key set to: ${columns[$i]}"
-		# 				break 2
-        #     		fi
-        # 		done
-    	# 	else
-        # 	echo "Invalid choice, please try again."
-    	# 	fi
-		# done
 		echo ${columns[@]} > $PATHTODB/$CURRDATABASE/$tb_name
     fi
 }
@@ -335,11 +260,11 @@ insertIntoTable(){
 			local col_name=$(echo $s_coulmn | cut -d':' -f1)
 			local col_type=$(echo $s_coulmn | cut -d':' -f2)
 			local col_defult=$(echo $s_coulmn | cut -d':' -f3)
-			local col_stutas=$(echo $s_coulmn | cut -d':' -f4)
+			local col_status=$(echo $s_coulmn | cut -d':' -f4)
 			local col_pk=$(echo $s_coulmn | grep -o ":PK")
 			local value
 			while true; do
-				read -p "Enetr the value for coulumn $col_name($col_type , $col_defult) -> " value
+				read -p "Enetr the value for column $col_name($col_type , $col_defult) -> " value
 				if [[ $value == "" ]]; then
 					if [[ $col_defult == "notNull" ]]; then
 						echo "This column does not allow null values. Please enter a value."
@@ -350,35 +275,8 @@ insertIntoTable(){
 				if [ $? -eq 1 ]; then
 					continue
 				fi
-				# case $col_type in 
-				# 	int)
-                #     if ! [[ $value =~ ^[0-9]+$ ]]; then
-                #         echo "Invalid integer value. Try again."
-                #         continue
-                #     fi
-                #     ;;
-				# 	float)
-                #     if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-                #         echo "Invalid float value. Try again."
-                #         continue
-                #     fi
-                #     ;;
-				# 	boolean)
-                #     if ! [[ $value =~ ^(true|false)$ ]]; then
-                #         echo "Invalid boolean value (true/false). Try again."
-                #         continue
-                #     fi
-                #     ;;
-				# 	string|char)
-                #     # Strings are generally valid without additional checks
-                #     if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
-                #         echo "Invalid character value. Enter a single character."
-                #         continue
-                #     fi
-                #     ;;
 
-				# esac
-				if [[ $col_stutas == "unique" ]]; then 
+				if [[ $col_status == "unique" ]]; then 
 					col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
 					if [[ -z $col_index ]]; then
 						echo "Error: Could not find the column index for $col_name."
@@ -403,8 +301,7 @@ insertIntoTable(){
 				break;
 			done
 		done
-		# echo "${row[*]}" | tr ' ' ':' >> "$PATHTODB/$CURRDATABASE/$table_name"
-		# echo "$(IFS=:; echo "${row[*]}")" >> "$PATHTODB/$CURRDATABASE/$table_name"
+
 		echo "$(IFS=:; echo "${row[*]}")" >> "$PATHTODB/$CURRDATABASE/$table_name"
     	echo "Row inserted successfully!"
 	fi
@@ -548,51 +445,25 @@ updateTable(){
 				local col_name=$(echo $column | cut -d':' -f1)
 				local col_type=$(echo $column | cut -d':' -f2)
 				local col_defult=$(echo $column | cut -d':' -f3)
-				local col_stutas=$(echo $column | cut -d':' -f4)
+				local col_status=$(echo $column | cut -d':' -f4)
 				read -p "Are you sure to update the row with id = $primary_key (y or n) -> " decision
 				if [ $decision == "y" ];then
 					while true; do
 						read -p "Enter the new value -> " new_value
-							# ########################
+
 							if [[ $new_value == "" ]]; then
 								if [[ $col_defult == "notNull" ]]; then
 									echo "This column does not allow null values. Please enter a value."
 									continue
 								fi
 							fi
+
 							checkDataType $col_type $new_value
 							if [ $? -eq 1 ]; then
 								continue
 							fi
-							# case $col_type in 
-							# 	int)
-							# 	if ! [[ $new_value =~ ^[0-9]+$ ]]; then
-							# 		echo "Invalid integer value. Try again."
-							# 		continue
-							# 	fi
-							# 	;;
-							# 	float)
-							# 	if ! [[ $new_value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-							# 		echo "Invalid float value. Try again."
-							# 		continue
-							# 	fi
-							# 	;;
-							# 	boolean)
-							# 	if ! [[ $new_value =~ ^(true|false)$ ]]; then
-							# 		echo "Invalid boolean value (true/false). Try again."
-							# 		continue
-							# 	fi
-							# 	;;
-							# 	string|char)
-							# 	# Strings are generally valid without additional checks
-							# 	if [[ $col_type == "char" && ${#new_value} -ne 1 ]]; then
-							# 		echo "Invalid character value. Enter a single character."
-							# 		continue
-							# 	fi
-							# 	;;
-
-							# esac
-							if [[ $col_stutas == "unique" ]]; then 
+					
+							if [[ $col_status == "unique" ]]; then 
 								col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
 								if [[ -z $col_index ]]; then
 									echo "Error: Could not find the column index for $col_name."
@@ -604,13 +475,13 @@ updateTable(){
 									continue
 								fi
 							fi
-							# row+=("$value")
+							
 							if [ $col_type == "string" ]; then
 								new_value="\"$new_value\""
 							fi
 							break 
 							done
-							# ########################
+							
 							sed -i "${line_num}s/$value/$new_value/" "$PATHTODB/$CURRDATABASE/$tb_name"
 							echo "Done"
 							break
@@ -624,7 +495,7 @@ updateTable(){
 			fi
 			done
 		else
-			# echo "$primary_key Not Found!"
+
 			echo "There is no value of $col_name equals $primary_key"
 		fi
 	else
