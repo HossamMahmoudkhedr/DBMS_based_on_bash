@@ -151,28 +151,30 @@ createTable(){
 
     # Check if the table already exists
     if [ -f "$PATHTODB/$CURRDATABASE/$tb_name" ]; then
+		echo ""
         echo "This table already exists"
+		echo ""
     elif [ -z "$tb_name" ]; then
+		echo ""
         echo "Empty table name!"
     else
-        # Create the table file
-        touch "$PATHTODB/$CURRDATABASE/$tb_name"
         local columns=()
 		local pk=""
 		local pk_name
 		read -p "Enter the primary key name: " pk_name
 		pk+="$pk_name"
 
+		echo ""
 		PS3="Choose primary key data type: "
-
 		pk+=$(chooseDataType)
 
 			pk+=":notNull:unique:PK"
 			
 			columns+=("$pk")
 
+		echo ""
         echo "Enter the rest of the columns (Write 'exit' to stop)"
-        
+        echo ""
         while true; do
             local column=""
             read -p "Enter column name: " column
@@ -181,11 +183,10 @@ createTable(){
             if [[ ${column,,} == "exit" ]]; then
                 break
             fi
-            
 			PS3="Choose the data type: "
 
 			column+=$(chooseDataType)
-
+			echo ""
             PS3="Allow null values? "
             select choice in "Null" "Not null"; do
                 case $REPLY in
@@ -202,7 +203,7 @@ createTable(){
                         ;;
                 esac
             done
-
+			echo ""
             PS3="Allow unique values? "
             select choice in "Unique" "Not Unique"; do
                 case $REPLY in
@@ -220,18 +221,23 @@ createTable(){
                 esac
             done
 
-
+			echo ""
 			columns+=("$column")
 			PS3="->"			
         done
 			
+		# Create the table file
+        touch "$PATHTODB/$CURRDATABASE/$tb_name"
+
 		echo ${columns[@]} > $PATHTODB/$CURRDATABASE/$tb_name
     fi
 }
 
 ## list tables
 listTables(){
+	echo ""
 	ls -1 $PATHTODB/$CURRDATABASE | sed 's|^$PATHTODB/$CURRDATABASE||'
+	echo ""
 }
 
 ## drop table
@@ -240,9 +246,13 @@ dropTable(){
 	read -p "Enter the name of the table: " table_name
 	if [ -f "$PATHTODB/$CURRDATABASE/$table_name" ]; then
 		rm  "$PATHTODB/$CURRDATABASE/$table_name"
+		echo ""
 		echo "Table deleted successfully!"
+		echo ""
 	else
+		echo ""
 		echo "Table doesn't exist"
+		echo ""
 	fi
 }
 
@@ -252,7 +262,9 @@ insertIntoTable(){
 	local table_name=""
 	read -p "Enter table name -> " table_name
 	if [ ! -f "$PATHTODB/$CURRDATABASE/$table_name" ]; then
+		echo ""
 		echo "Table not found"
+		echo ""
 	else
 		local meta_data=($(head -n 1 "$PATHTODB/$CURRDATABASE/$table_name"))
 		local row=()
@@ -264,10 +276,13 @@ insertIntoTable(){
 			local col_pk=$(echo $s_coulmn | grep -o ":PK")
 			local value
 			while true; do
+			echo ""
 				read -p "Enetr the value for column $col_name($col_type , $col_defult) -> " value
 				if [[ $value == "" ]]; then
 					if [[ $col_defult == "notNull" ]]; then
+					echo ""
 						echo "This column does not allow null values. Please enter a value."
+						echo ""
 						continue
 					fi
 				fi
@@ -279,15 +294,21 @@ insertIntoTable(){
 				if [[ $col_status == "unique" ]]; then 
 					col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
 					if [[ -z $col_index ]]; then
+						echo ""
 						echo "Error: Could not find the column index for $col_name."
+						echo ""
 						exit 1
 					fi
 					col_values=$(awk -F':' -v col_idx="$col_index" '{print $col_idx}' "$PATHTODB/$CURRDATABASE/$table_name")					
 					if echo "$col_values" | grep -qx "$value"; then
 						if [[ -n $col_pk ]]; then
+						echo ""
 							echo "Primary key must be unique. Try another."
+							echo ""
 						else
+						echo ""
 							echo "Column value must be unique. Try another."
+							echo ""
 						fi
 						continue
 					fi
@@ -301,9 +322,10 @@ insertIntoTable(){
 				break;
 			done
 		done
-
+		echo ""
 		echo "$(IFS=:; echo "${row[*]}")" >> "$PATHTODB/$CURRDATABASE/$table_name"
     	echo "Row inserted successfully!"
+		echo ""
 	fi
 }
 
@@ -329,7 +351,9 @@ selectFromTable(){
 		done
 		grep -w "$ID" "$PATHTODB/$CURRDATABASE/$tb_name" | awk -F: '{for(i=1; i<=NF; i++) if(i==NF) print $i; else printf "%s | ", $i}'
 	else
+		echo ""
 		echo "The table dosen't exist"
+		echo ""
 	fi
 }
 
@@ -421,6 +445,7 @@ updateTable(){
 				local value
 				local column
 				local new_value
+				echo ""
 				PS3="Which one of the column name to update -> "
 				select choice in "${meta_data[@]:1}"; do
 					if [[ -n $choice ]]; then
@@ -434,11 +459,15 @@ updateTable(){
 							fi
 						done
 						if [[ -n $column && -n $value ]]; then
+							echo ""
 							echo "$column = $value"
+							echo ""
 							break
 						fi
 					else
+					echo ""
 					echo "Invalid choice, please try again."
+					echo ""
 					fi
 				done 
 				while true; do
@@ -446,7 +475,9 @@ updateTable(){
 				local col_type=$(echo $column | cut -d':' -f2)
 				local col_defult=$(echo $column | cut -d':' -f3)
 				local col_status=$(echo $column | cut -d':' -f4)
+				
 				read -p "Are you sure to update the row with id = $primary_key (y or n) -> " decision
+				echo ""
 				if [ $decision == "y" ];then
 					while true; do
 						read -p "Enter the new value -> " new_value
@@ -484,6 +515,7 @@ updateTable(){
 							
 							sed -i "${line_num}s/$value/$new_value/" "$PATHTODB/$CURRDATABASE/$tb_name"
 							echo "Done"
+							echo ""
 							break
 						
 						
@@ -495,17 +527,22 @@ updateTable(){
 			fi
 			done
 		else
-
+			echo ""
 			echo "There is no value of $col_name equals $primary_key"
+			echo ""
 		fi
 	else
+		echo ""
 		echo "Table Not Found!"
+		echo ""
 	fi
 }
 
 ## disconnect form database
 disconnect(){
+	echo ""
 	echo "Disconnected from $CURRDATABASE"
+	echo ""
 	displayMainMenu
 	$CURRDATABASE=""
 }
