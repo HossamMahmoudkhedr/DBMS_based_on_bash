@@ -346,35 +346,38 @@ insertIntoTable(){
 						continue
 					fi
 				fi
+				checkDataType $col_type $value
+				if [ $? -eq 1 ]; then
+					continue
+				fi
+				# case $col_type in 
+				# 	int)
+                #     if ! [[ $value =~ ^[0-9]+$ ]]; then
+                #         echo "Invalid integer value. Try again."
+                #         continue
+                #     fi
+                #     ;;
+				# 	float)
+                #     if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                #         echo "Invalid float value. Try again."
+                #         continue
+                #     fi
+                #     ;;
+				# 	boolean)
+                #     if ! [[ $value =~ ^(true|false)$ ]]; then
+                #         echo "Invalid boolean value (true/false). Try again."
+                #         continue
+                #     fi
+                #     ;;
+				# 	string|char)
+                #     # Strings are generally valid without additional checks
+                #     if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
+                #         echo "Invalid character value. Enter a single character."
+                #         continue
+                #     fi
+                #     ;;
 
-				case $col_type in 
-					int)
-                    if ! [[ $value =~ ^[0-9]+$ ]]; then
-                        echo "Invalid integer value. Try again."
-                        continue
-                    fi
-                    ;;
-					float)
-                    if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-                        echo "Invalid float value. Try again."
-                        continue
-                    fi
-                    ;;
-					boolean)
-                    if ! [[ $value =~ ^(true|false)$ ]]; then
-                        echo "Invalid boolean value (true/false). Try again."
-                        continue
-                    fi
-                    ;;
-					string|char)
-                    # Strings are generally valid without additional checks
-                    if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
-                        echo "Invalid character value. Enter a single character."
-                        continue
-                    fi
-                    ;;
-
-				esac
+				# esac
 				if [[ $col_stutas == "unique" ]]; then 
 					col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
 					if [[ -z $col_index ]]; then
@@ -557,35 +560,38 @@ updateTable(){
 									continue
 								fi
 							fi
+							checkDataType $col_type $new_value
+							if [ $? -eq 1 ]; then
+								continue
+							fi
+							# case $col_type in 
+							# 	int)
+							# 	if ! [[ $new_value =~ ^[0-9]+$ ]]; then
+							# 		echo "Invalid integer value. Try again."
+							# 		continue
+							# 	fi
+							# 	;;
+							# 	float)
+							# 	if ! [[ $new_value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+							# 		echo "Invalid float value. Try again."
+							# 		continue
+							# 	fi
+							# 	;;
+							# 	boolean)
+							# 	if ! [[ $new_value =~ ^(true|false)$ ]]; then
+							# 		echo "Invalid boolean value (true/false). Try again."
+							# 		continue
+							# 	fi
+							# 	;;
+							# 	string|char)
+							# 	# Strings are generally valid without additional checks
+							# 	if [[ $col_type == "char" && ${#new_value} -ne 1 ]]; then
+							# 		echo "Invalid character value. Enter a single character."
+							# 		continue
+							# 	fi
+							# 	;;
 
-							case $col_type in 
-								int)
-								if ! [[ $new_value =~ ^[0-9]+$ ]]; then
-									echo "Invalid integer value. Try again."
-									continue
-								fi
-								;;
-								float)
-								if ! [[ $new_value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-									echo "Invalid float value. Try again."
-									continue
-								fi
-								;;
-								boolean)
-								if ! [[ $new_value =~ ^(true|false)$ ]]; then
-									echo "Invalid boolean value (true/false). Try again."
-									continue
-								fi
-								;;
-								string|char)
-								# Strings are generally valid without additional checks
-								if [[ $col_type == "char" && ${#new_value} -ne 1 ]]; then
-									echo "Invalid character value. Enter a single character."
-									continue
-								fi
-								;;
-
-							esac
+							# esac
 							if [[ $col_stutas == "unique" ]]; then 
 								col_index=$(printf "%s\n" "${meta_data[@]}" | grep -nw "$col_name" | cut -d: -f1)
 								if [[ -z $col_index ]]; then

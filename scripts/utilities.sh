@@ -43,3 +43,35 @@ chooseDataType(){
 		done
     echo $choice
 }
+checkDataType()
+{
+	local col_type=$1
+	local value=$2
+	case $col_type in 
+		int)
+		if ! [[ $value =~ ^[0-9]+$ ]]; then
+			echo "Invalid integer value. Try again."
+			return 1
+		fi
+		;;
+		float)
+		if ! [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+			echo "Invalid float value. Try again."
+			return 1
+		fi
+		;;
+		boolean)
+		if ! [[ $value =~ ^(true|false)$ ]]; then
+			echo "Invalid boolean value (true/false). Try again."
+			return 1
+		fi
+		;;
+		string|char)
+		# Strings are generally valid without additional checks
+		if [[ $col_type == "char" && ${#value} -ne 1 ]]; then
+			echo "Invalid character value. Enter a single character."
+			return 1
+		fi
+		;;
+	esac
+}
