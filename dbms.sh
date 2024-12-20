@@ -160,45 +160,46 @@ createTable(){
         local columns=()
 		local pk=""
 		local pk_name
-		local pk_datatype
 		read -p "Enter the primary key name: " pk_name
 		pk+="$pk_name"
 
 		PS3="Choose primary key data type: "
-            select pk_datatype in "integer" "string" "boolean" "float" "character"; do
-				case $REPLY in
-					1)
-						pk+=":int"
-						break
-						;;
-					2)
-						pk+=":string"
-						break
-						;;
-					3)
-						pk+=":boolean"
-						break
-						;;
-					4)
-						pk+=":float"
-						break
-						;;
-					5)
-						pk+=":char"
-						break
-						;;
-					*)
-						echo "Invalid data type"
-						continue
-						;;
-				esac
-			done
+		# select pk_datatype in "integer" "string" "boolean" "float" "character"; do
+		# 	case $REPLY in
+		# 		1)
+		# 			pk+=":int"
+		# 			break
+		# 			;;
+		# 		2)
+		# 			pk+=":string"
+		# 			break
+		# 			;;
+		# 		3)
+		# 			pk+=":boolean"
+		# 			break
+		# 			;;
+		# 		4)
+		# 			pk+=":float"
+		# 			break
+		# 			;;
+		# 		5)
+		# 			pk+=":char"
+		# 			break
+		# 			;;
+		# 		*)
+		# 			echo "Invalid data type"
+		# 			continue
+		# 			;;
+		# 	esac
+		# done
+
+		pk+=$(chooseDataType)
 
 			pk+=":notNull:unique:PK"
 			
 			columns+=("$pk")
 
-        echo "Enter the columns (Write 'exit' to stop)"
+        echo "Enter the rest of the columns (Write 'exit' to stop)"
         
         while true; do
             local column=""
@@ -210,34 +211,36 @@ createTable(){
             fi
             
 			PS3="Choose the data type: "
-            select datatype in "integer" "string" "boolean" "float" "character"; do
-				case $REPLY in
-					1)
-						column+=":int"
-						break
-						;;
-					2)
-						column+=":string"
-						break
-						;;
-					3)
-						column+=":boolean"
-						break
-						;;
-					4)
-						column+=":float"
-						break
-						;;
-					5)
-						column+=":char"
-						break
-						;;
-					*)
-						echo "Invalid data type"
-						continue
-						;;
-				esac
-			done
+            # select datatype in "integer" "string" "boolean" "float" "character"; do
+			# 	case $REPLY in
+			# 		1)
+			# 			column+=":int"
+			# 			break
+			# 			;;
+			# 		2)
+			# 			column+=":string"
+			# 			break
+			# 			;;
+			# 		3)
+			# 			column+=":boolean"
+			# 			break
+			# 			;;
+			# 		4)
+			# 			column+=":float"
+			# 			break
+			# 			;;
+			# 		5)
+			# 			column+=":char"
+			# 			break
+			# 			;;
+			# 		*)
+			# 			echo "Invalid data type"
+			# 			continue
+			# 			;;
+			# 	esac
+			# done
+
+			column+=$(chooseDataType)
 
             PS3="Allow null values? "
             select choice in "Null" "Not null"; do

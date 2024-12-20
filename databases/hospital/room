@@ -1,0 +1,1 @@
+room_no:int:notNull:unique:PK patient_name:string:notNull:notUnique
