@@ -8,3 +8,4 @@ id:int:notNull:unique:PK name:string:notNull:notUnique age:int:null:notUnique
 7:Khaled:Bogy:NULL
 11:Youssef Abdo:23
 20:"Mohamed Ali":30
+77:"hossam":23
