@@ -1,1 +1,0 @@
-id:int:notNull:unique:PK name:string:notNull:notUnique age:int:null:notUnique
